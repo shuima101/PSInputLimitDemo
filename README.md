@@ -24,7 +24,7 @@ PSInputLimitTypePhone      = 3,    //手机号码输入框
 
 PSInputLimitTypeEmail      = 4,    //
 
-PSInputLimitTypeChinese    = 5,    //添加一个属性来限制输入的字体个数
+PSInputLimitTypeChinese    = 5,    //
 
 PSInputLimitTypeMoney      = 6,    //金额(TypeFloat添加处理特殊输入(.01=0.01 / 01.4=1.4))
 

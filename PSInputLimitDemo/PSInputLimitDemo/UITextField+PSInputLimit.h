@@ -26,6 +26,25 @@ typedef NS_ENUM(NSUInteger, PSInputLimitErrorType) {
 
 @interface UITextField (PSInputLimit) ///<UIAlertViewDelegate>
 
+#pragma mark - 链式
+/**限制输入的字符个数, 默认9个*/
+- (UITextField * (^)(NSInteger))lt_limitLength;
+/**限制小数点后几位, 默认2位*/
+- (UITextField * (^)(NSInteger))lt_limitPoint;
+/** 首位是否可以为 0 (整型时), 默认NO */
+- (UITextField * (^)(BOOL))lt_integerPrimacyZero;
+/** 首位是否可以为正数(数字类型时), 默认NO */
+- (UITextField * (^)(BOOL))lt_positive;
+/**是否可以粘贴复制, 默认NO*/
+- (UITextField * (^)(BOOL))lt_openMenu;
+/** 触发错误文字提示 */
+- (UITextField * (^)(NSString *))lt_showErrText;
+/** 触发错误动作 */
+- (UITextField * (^)(void (^ps_didTriggerLimitationBlock)(void)))lt_didTriggerLimitationBlock;
+/** 设置文本限制类型，在链式最后调用 */
+- (UITextField * (^)(PSInputLimitType))lt_startLimitWithType;
+
+#pragma mark-- 属性
 /**
  限制输入的类型, 默认不限制类型   全部设置完成以后再设置类型
  */
@@ -52,5 +71,6 @@ typedef NS_ENUM(NSUInteger, PSInputLimitErrorType) {
 
 /** 触发限制操作时的提示信息 */
 @property(nonatomic, strong) void(^ps_didTriggerLimitationBlock)(void);
+
 
 @end

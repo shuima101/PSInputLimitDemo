@@ -83,14 +83,14 @@ NSString *ps_oldStr;
             break;
 
         case PSInputLimitTypeFloat:
-            if (self.ps_positive) {
+            if (self.ps_positive) { //正数
                 //兼容实时输入的情况
                 if (text.length == 1) { //单个字符的时候判断-或者单个数组
                     number = @"^(\\d{0,1})?$";
                 } else { //二个以上以后
                     number = [NSString stringWithFormat:@"^([1-9][\\d]{0,%ld}|0)(\\.[\\d]{0,%ld})?$", (long)(self.ps_limitDigit - 1), (long)self.ps_limitPoint];
                 }
-            } else {
+            } else { //负数
                 //兼容实时输入的情况
                 if (text.length == 1) { //单个字符的时候判断-或者单个数组
                     number = @"^-?(\\d{0,1})?$";
@@ -337,22 +337,91 @@ static const char ps_positiveKey = '\0';
     objc_setAssociatedObject(self, &ps_integerPrimacyZeroKey, @(ps_integerPrimacyZero), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
--(BOOL)ps_openMenu
-{
+- (BOOL)ps_openMenu {
     return [objc_getAssociatedObject(self, &ps_openMenuKey) boolValue];
 }
--(void)setPs_openMenu:(BOOL)ps_openMenu
-{
+- (void)setPs_openMenu:(BOOL)ps_openMenu {
     objc_setAssociatedObject(self, &ps_openMenuKey, @(ps_openMenu), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
--(void (^)(void))ps_didTriggerLimitationBlock
-{
+- (void (^)(void))ps_didTriggerLimitationBlock {
     return objc_getAssociatedObject(self, &ps_didTriggerLimitationBlockKey);
 }
--(void)setPs_didTriggerLimitationBlock:(void (^)(void))ps_didTriggerLimitationBlock
-{
+- (void)setPs_didTriggerLimitationBlock:(void (^)(void))ps_didTriggerLimitationBlock {
     objc_setAssociatedObject(self, &ps_didTriggerLimitationBlockKey, ps_didTriggerLimitationBlock, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+#pragma mark - 链式
+#define weak_Self __weak typeof(self) weakSelf = self
+#define strong_Self __strong typeof((weakSelf)) strongSelf = (weakSelf)
+
+/**
+ 限制输入的字符个数, 默认9个
+ */
+- (UITextField * (^)(NSInteger))lt_limitLength {
+    return ^id(NSInteger ps_limitDigit) {
+        self.ps_limitDigit = ps_limitDigit;
+        return self;
+    };
+}
+/**
+ 限制小数点后几位, 默认2位
+ */
+- (UITextField * (^)(NSInteger))lt_limitPoint {
+    return ^id(NSInteger ps_limitPoint) {
+        self.ps_limitPoint = ps_limitPoint;
+        return self;
+    };
+}
+/** 首位是否可以为 0 (整型时), 默认NO */
+- (UITextField * (^)(BOOL))lt_integerPrimacyZero {
+    return ^id(BOOL ps_integerPrimacyZero) {
+        self.ps_integerPrimacyZero = ps_integerPrimacyZero;
+        return self;
+    };
+}
+/** 首位是否可以为正数(数字类型时), 默认NO */
+- (UITextField * (^)(BOOL))lt_positive {
+    return ^id(BOOL ps_positive) {
+        self.ps_positive = ps_positive;
+        return self;
+    };
+}
+/**
+ 是否可以粘贴复制, 默认NO
+ */
+- (UITextField * (^)(BOOL))lt_openMenu {
+    return ^id(BOOL ps_openMenu) {
+        self.ps_openMenu = ps_openMenu;
+        return self;
+    };
+}
+
+/** 触发限制操作时的提示信息 */
+- (UITextField * (^)(NSString*))lt_showErrText {
+    return ^id(NSString * tip) {
+        if (tip.length) {
+            self.ps_tipTextForLimitType = ^NSString *{
+                return tip;
+            };
+        }
+        return self;
+    };
+}
+/** 触发限制操作时的提示信息 */
+- (UITextField * (^)(void(^ps_didTriggerLimitationBlock)(void)))lt_didTriggerLimitationBlock {
+    return ^id(void(^ps_didTriggerLimitationBlock)(void)) {
+        self.ps_didTriggerLimitationBlock = ps_didTriggerLimitationBlock;
+        return self;
+    };
+}
+
+//设置类型
+- (UITextField * (^)(PSInputLimitType))lt_startLimitWithType {
+    return ^id(PSInputLimitType ty) {
+        self.ps_limitType = ty;
+        return self;
+    };
 }
 
 @end

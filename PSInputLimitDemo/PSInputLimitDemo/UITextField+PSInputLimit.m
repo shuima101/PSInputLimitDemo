@@ -197,6 +197,7 @@ NSString *ps_oldStr;
 }
 
 - (void)alertViewmessager:(NSString *)messager {
+    //这边还有个问题，项目中alertl以后，失去焦点了，暂时使用hub替换掉
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated"
     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"提示" message:messager delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];

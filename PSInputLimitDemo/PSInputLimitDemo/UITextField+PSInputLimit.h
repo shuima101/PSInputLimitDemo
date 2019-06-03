@@ -14,7 +14,7 @@ typedef NS_ENUM(NSUInteger, PSInputLimitType)
     PSInputLimitTypeFloat      = 1,    //默认限制整数9位,小数点后两位
     PSInputLimitTypeInteger    = 2,    //配合limitDigit使用,limitDigit默认9;
     PSInputLimitTypePhone      = 3,    //手机号码输入框,直接调用,
-    PSInputLimitTypeEmail      = 4,    //无法使用
+    PSInputLimitTypeEmail      = 4,    //无法使用,无法匹配过程正则
     PSInputLimitTypeChinese    = 5,    //添加一个属性来限制输入的字体个数
     PSInputLimitTypeMoney      = 6,    //金额(TypeFloat添加处理特殊输入(.01=0.01 / 01.4=1.4))
 };
@@ -25,7 +25,7 @@ typedef NS_ENUM(NSUInteger, PSInputLimitErrorType) {
     
 };
 
-@interface UITextField (PSInputLimit)
+@interface UITextField (PSInputLimit)///<UIAlertViewDelegate>
 
 /**
  限制输入的类型, 默认不限制类型

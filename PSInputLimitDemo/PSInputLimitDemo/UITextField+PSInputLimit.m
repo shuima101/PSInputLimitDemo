@@ -28,25 +28,25 @@ NSString *ps_oldStr;
         self.ps_limitPoint = 2;
     }
     
-    self.inputDelegate = self;
+    self.inputDelegate = (id)self;
     
     // 设置输入监听
     [self addTarget:self action:@selector(ps_textDidChange:) forControlEvents:UIControlEventEditingChanged];
     
     // 设置键盘样式
     switch (self.ps_limitType) {
-        case PSInputLimitTypeNone:
-        case PSInputLimitTypeEmail:
-        case PSInputLimitTypeChinese:
+            case PSInputLimitTypeNone:
+            case PSInputLimitTypeEmail:
+            case PSInputLimitTypeChinese:
             self.keyboardType = UIKeyboardTypeDefault;
             break;
             
-        case PSInputLimitTypeFloat:
+            case PSInputLimitTypeFloat:
             self.keyboardType = UIKeyboardTypeDecimalPad;
             break;
             
-        case PSInputLimitTypeInteger:
-        case PSInputLimitTypePhone:
+            case PSInputLimitTypeInteger:
+            case PSInputLimitTypePhone:
             self.keyboardType = UIKeyboardTypeNumberPad;
             break;
             
@@ -58,7 +58,7 @@ NSString *ps_oldStr;
 
 -(void)ps_textDidChange:(UITextField *)tf
 {
-//    UITextPosition *position = [self positionFromPosition:[self markedTextRange].start offset:0];
+    //    UITextPosition *position = [self positionFromPosition:[self markedTextRange].start offset:0];
     if (self.markedTextRange) return;// 输入汉字时, 高亮的拼音不算作字符
     
     if (tf.text.length < ps_oldStr.length) {// 删除时
@@ -71,7 +71,7 @@ NSString *ps_oldStr;
     }else {
         tf.text = ps_oldStr;
         if (self.ps_tipTextForLimitType) {
-            [self alertViewmessager:self.ps_tipTextForLimitType()?:@""];
+            [self alertViewmessager:self.ps_tipTextForLimitType()?:@"输入格式错误或超出限制长度"];
         }
     }
 }
@@ -82,49 +82,72 @@ NSString *ps_oldStr;
     
     switch (self.ps_limitType)
     {
-        case PSInputLimitTypeNone:
+            case PSInputLimitTypeNone:
             return text.length <= self.ps_limitDigit;
             break;
-
-        case PSInputLimitTypeFloat:
-            number = [NSString stringWithFormat:@"^\\-?([1-9]\\d{0,%ld}|0)(\\.\\d{0,%ld})?$",(long)(self.ps_limitDigit-1),(long)self.ps_limitPoint];
+            
+            case PSInputLimitTypeFloat:
+            //兼容实时输入的情况
+            if (text.length == 1) {//单个字符的时候判断-或者单个数组
+                number = @"^-?(\\d{0,1})?$";
+            } else {//二个以上以后
+                number = [NSString stringWithFormat:@"^-?([1-9][\\d]{0,%ld}|0)(\\.[\\d]{0,%ld})?$",(long)(self.ps_limitDigit-1),(long)self.ps_limitPoint];
+            }
             break;
             
-        case PSInputLimitTypeInteger:
-            number = [NSString stringWithFormat: self.ps_integerPrimacyZero ? @"^\\-?([1-9]\\d{0,%ld}|0)$" : @"^\\d{0,%ld}$",(long)self.ps_limitDigit];
+            case PSInputLimitTypeInteger:
+            //兼容实时输入的情况
+            if (text.length == 1) {//单个字符的时候判断-或者单个数组
+                number = @"^-?(\\d{0,1})?$";
+            } else {//二个以上以后
+                if (self.ps_integerPrimacyZero) {
+                    number = [NSString stringWithFormat: @"^-?\\d{0,%ld}$",(long)self.ps_limitDigit+1];
+                } else {
+                    number = [NSString stringWithFormat: @"^-?([1-9]\\d{0,%ld}|0)$",(long)self.ps_limitDigit-1];
+                }
+            }
             break;
             
-        case PSInputLimitTypePhone:
+            case PSInputLimitTypePhone:
             number = @"^\\d{0,11}$" ;
             break;
             
-        case PSInputLimitTypeEmail:
+            case PSInputLimitTypeEmail:
             number = @"";
             break;
             
-        case PSInputLimitTypeChinese:
+            case PSInputLimitTypeChinese:
             
             if (text.length > self.ps_limitDigit)
-            {
-                ps_oldStr = [self.text substringToIndex:self.ps_limitDigit];
-                
-                if (self.ps_didTriggerLimitationBlock) {
-                    self.ps_didTriggerLimitationBlock();
-                }
-                return NO;
+        {
+            ps_oldStr = [self.text substringToIndex:self.ps_limitDigit];
+            
+            if (self.ps_didTriggerLimitationBlock) {
+                self.ps_didTriggerLimitationBlock();
             }
+            return NO;
+        }
             
             break;
-        case PSInputLimitTypeMoney:
+            case PSInputLimitTypeMoney:
             if ([text isEqualToString:@"."]) {// 首位输入小数点
                 self.text = @"0.";
-                return NO;
+                return YES;
             }
             // 首位是0时, 输入非小数点数字
-            if (text.length == 2 && [text hasPrefix:@"0"] && ![text isEqualToString:@"."]) {
-                self.text = @"";
+            if (text.length == 2 && [text hasPrefix:@"0"]) {
+                NSArray *textArr = [self getSubString:text];
+                if (![textArr[1] isEqualToString:@"."]) {
+                    self.text = textArr[1];
+                    text = textArr[1];
+                }
             }
-            number = [NSString stringWithFormat:@"^\\-?([1-9]\\d{0,%ld}|0)(\\.\\d{0,%ld})?$",(long)(self.ps_limitDigit-1),(long)self.ps_limitPoint];
+            //限制不能输入00这种,只兼容正常输入，如果不支持-.
+            if (text.length == 1) {//单个字符的时候判断-或者单个数组
+                number = @"^-?(\\d{0,1})?$";
+            } else {
+                number = [NSString stringWithFormat:@"^\\-?([1-9]\\d{0,%ld}|0)(\\.\\d{0,%ld})?$",(long)(self.ps_limitDigit-1),(long)self.ps_limitPoint];
+            }
             break;
         default:
             break;
@@ -155,6 +178,10 @@ NSString *ps_oldStr;
 #pragma clang diagnostic pop
     [alertView show];
 }
+
+//- (void)alertViewCancel:(UIAlertView *)alertView NS_DEPRECATED_IOS(2_0, 9_0) {
+//    [self becomeFirstResponder ];
+//}
 
 //监听UITextFieldTextDidChangeNotification 状态
 //- (void)textFieldDidChange:(NSNotification *)note{
@@ -300,4 +327,16 @@ static const char ps_didTriggerLimitationBlockKey = '\0';
     objc_setAssociatedObject(self, &ps_didTriggerLimitationBlockKey, ps_didTriggerLimitationBlock, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+
+-(NSArray *)getSubString:(NSString*)str {
+    
+    NSMutableArray *textArray = [NSMutableArray array];
+    for (NSInteger i = 0; i < str.length; i++) {
+        NSRange   range =  NSMakeRange(i, 1);
+        NSString *subStr = [str substringWithRange:range];
+        [textArray addObject:subStr];
+    }
+    return textArray;
+    
+}
 @end

@@ -27,7 +27,7 @@
 //    _textField.ps_tipTextForLimitType = ^NSString *{
 //        return @"最多输入5个字符";
 //    };
-    _textField.lt_limitLength(5).lt_positive(YES).lt_startLimitWithType(PSInputLimitTypeFloat).lt_showErrText(@"111");
+    _textField.lt_limitLength(5).lt_positive(YES).lt_startLimitWithType(PSInputLimitTypeChinese).lt_showErrText(@"111");
 }
 
 @end

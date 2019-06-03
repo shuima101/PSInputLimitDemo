@@ -70,6 +70,8 @@ NSString *ps_oldStr;
         tf.text = ps_oldStr;
         if (self.ps_tipTextForLimitType) {
             [self alertViewmessager:self.ps_tipTextForLimitType() ?: @"输入格式错误或超出限制长度"];
+        } else {
+            [self alertViewmessager:@"输入格式错误或超出限制长度"];
         }
     }
 }

@@ -197,17 +197,14 @@ NSString *ps_oldStr;
 }
 
 - (void)alertViewmessager:(NSString *)messager {
-    //这边还有个问题，项目中alertl以后，失去焦点了，暂时使用hub替换掉
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"提示" message:messager delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-#pragma clang diagnostic pop
-    [alertView show];
+    //可以使用项目hub修改提示
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:messager preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        [self becomeFirstResponder];
+    }];
+    [alert addAction:cancelAction];
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
 }
-
-//- (void)alertViewCancel:(UIAlertView *)alertView NS_DEPRECATED_IOS(2_0, 9_0) {
-//    [self becomeFirstResponder ];
-//}
 
 //监听UITextFieldTextDidChangeNotification 状态
 //- (void)textFieldDidChange:(NSNotification *)note{

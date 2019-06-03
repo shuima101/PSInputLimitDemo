@@ -24,7 +24,7 @@ typedef NS_ENUM(NSUInteger, PSInputLimitErrorType) {
 
 };
 
-@interface UITextField (PSInputLimit) ///<UIAlertViewDelegate>
+@interface UITextField (PSInputLimit)
 
 #pragma mark - 链式
 /**限制输入的字符个数, 默认9个*/

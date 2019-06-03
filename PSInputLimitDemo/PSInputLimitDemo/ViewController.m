@@ -22,6 +22,7 @@
     
 //    _textField.ps_limitType = PSInputLimitTypeChinese;
     _textField.ps_limitDigit = 5;
+    _textField.ps_positive = YES;
     _textField.ps_limitType = PSInputLimitTypeFloat;
     _textField.ps_tipTextForLimitType = ^NSString *{
         return @"最多输入5个字符";
